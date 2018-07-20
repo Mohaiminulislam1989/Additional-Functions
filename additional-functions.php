@@ -1,19 +1,19 @@
 <?php
 /*
-Plugin Name: Starter Plugin
+Plugin Name: Additional Functions
 Plugin URI: https://example.com/
-Description: Description
+Description: Additional functions for this site is in this plugin
 Version: 0.1
-Author: Your Name
+Author: Author
 Author URI: https://example.com/
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: baseplugin
+Text Domain: af
 Domain Path: /languages
 */
 
 /**
- * Copyright (c) YEAR Your Name (email: Email). All rights reserved.
+ * Copyright (c) YEAR Author (email: Email). All rights reserved.
  *
  * Released under the GPL license
  * http://www.opensource.org/licenses/gpl-license.php
@@ -42,11 +42,11 @@ Domain Path: /languages
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
- * Base_Plugin class
+ * Additional_Functions class
  *
- * @class Base_Plugin The class that holds the entire Base_Plugin plugin
+ * @class Additional_Functions The class that holds the entire Additional_Functions plugin
  */
-class Base_Plugin {
+class Additional_Functions {
 
     /**
      * Plugin version
@@ -56,7 +56,7 @@ class Base_Plugin {
     public $version = '0.1.0';
 
     /**
-     * Constructor for the Base_Plugin class
+     * Constructor for the Additional_Functions class
      *
      * Sets up all the appropriate hooks and actions
      * within our plugin.
@@ -83,25 +83,25 @@ class Base_Plugin {
      * @return void
      */
     public function define_constants() {
-        define( 'BASEPLUGIN_VERSION', $this->version );
-        define( 'BASEPLUGIN_FILE', __FILE__ );
-        define( 'BASEPLUGIN_PATH', dirname( BASEPLUGIN_FILE ) );
-        define( 'BASEPLUGIN_INCLUDES', BASEPLUGIN_PATH . '/includes' );
-        define( 'BASEPLUGIN_URL', plugins_url( '', BASEPLUGIN_FILE ) );
-        define( 'BASEPLUGIN_ASSETS', BASEPLUGIN_URL . '/assets' );
+        define( 'AF_VERSION', $this->version );
+        define( 'AF_FILE', __FILE__ );
+        define( 'AF_PATH', dirname( AF_FILE ) );
+        define( 'AF_INCLUDES', AF_PATH . '/includes' );
+        define( 'AF_URL', plugins_url( '', AF_FILE ) );
+        define( 'AF_ASSETS', AF_URL . '/assets' );
     }
 
     /**
-     * Initializes the Base_Plugin() class
+     * Initializes the Additional_Functions() class
      *
-     * Checks for an existing Base_Plugin() instance
+     * Checks for an existing Additional_Functions() instance
      * and if it doesn't find one, creates it.
      */
     public static function init() {
         static $instance = false;
 
         if ( ! $instance ) {
-            $instance = new Base_Plugin();
+            $instance = new Additional_Functions();
         }
 
         return $instance;
@@ -114,7 +114,7 @@ class Base_Plugin {
      */
     public function activate() {
 
-        update_option( 'baseplugin_version', BASEPLUGIN_VERSION );
+        update_option( 'af_version', AF_VERSION );
     }
 
     /**
@@ -154,7 +154,7 @@ class Base_Plugin {
      * @uses load_plugin_textdomain()
      */
     public function localization_setup() {
-        load_plugin_textdomain( 'baseplugin', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+        load_plugin_textdomain( 'af', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
     }
 
     /**
@@ -171,12 +171,12 @@ class Base_Plugin {
         /**
          * All styles goes here
          */
-        wp_enqueue_style( 'baseplugin-styles', plugins_url( 'assets/css/style.css', __FILE__ ), false, date( 'Ymd' ) );
+        wp_enqueue_style( 'af-styles', plugins_url( 'assets/css/style.css', __FILE__ ), false, date( 'Ymd' ) );
 
         /**
          * All scripts goes here
          */
-        wp_enqueue_script( 'baseplugin-scripts', plugins_url( 'assets/js/script.js', __FILE__ ), array( 'jquery' ), false, true );
+        wp_enqueue_script( 'af-scripts', plugins_url( 'assets/js/script.js', __FILE__ ), array( 'jquery' ), false, true );
 
 
         /**
@@ -184,11 +184,11 @@ class Base_Plugin {
          *
          * Uncomment line below and replace with proper localization variables.
          */
-        // $translation_array = array( 'some_string' => __( 'Some string to translate', 'baseplugin' ), 'a_value' => '10' );
-        // wp_localize_script( 'base-plugin-scripts', 'baseplugin', $translation_array ) );
+        // $translation_array = array( 'some_string' => __( 'Some string to translate', 'af' ), 'a_value' => '10' );
+        // wp_localize_script( 'base-plugin-scripts', 'af', $translation_array ) );
 
     }
 
-} // Base_Plugin
+} // Additional_Functions
 
-$baseplugin = Base_Plugin::init();
+$af = Additional_Functions::init();
