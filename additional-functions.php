@@ -89,6 +89,7 @@ class Additional_Functions {
         define( 'AF_INCLUDES', AF_PATH . '/includes' );
         define( 'AF_URL', plugins_url( '', AF_FILE ) );
         define( 'AF_ASSETS', AF_URL . '/assets' );
+        define( 'AF_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
     }
 
     /**
@@ -146,6 +147,10 @@ class Additional_Functions {
 
         // Loads frontend scripts and styles
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+        add_filter( 'dokan_get_dashboard_nav', array( $this, 'add_service_page' ), 11, 1 );
+        add_action( 'dokan_load_custom_template', array( $this, 'load_template_from_plugin' ) );
+        add_filter( 'dokan_query_var_filter', array( $this, 'register_service_queryvar' ) );
     }
 
     /**
@@ -187,6 +192,67 @@ class Additional_Functions {
         // $translation_array = array( 'some_string' => __( 'Some string to translate', 'af' ), 'a_value' => '10' );
         // wp_localize_script( 'base-plugin-scripts', 'af', $translation_array ) );
 
+    }
+
+
+    /**
+     * Add menu on seller dashboard
+     * @since 1.0
+     * @param array $urls
+     * @return array $urls
+     */
+    function add_service_page( $urls ) {
+
+        $urls['service'] = array(
+            'title' => __( 'Service', 'dokan' ),
+            'icon'  => '<i class="fa fa-car"></i>',
+            'url'   => dokan_get_navigation_url( 'service' ),
+            'pos'   => 35,
+        );
+
+        return $urls;
+    }
+
+    /**
+     * Register page templates
+     *
+     * @since 1.0
+     *
+     * @param array $query_vars
+     *
+     * @return array $query_vars
+     */
+    function load_template_from_plugin( $query_vars ) {
+// var_dump($query_vars);
+        if ( isset( $query_vars['service'] ) ) {
+            add_filter( 'dokan_set_template_path', array( $this, 'af_set_template_path' ), 10 );
+            dokan_get_template_part( 'service/service', '', array( 'pro'=>true ) );
+            return;
+        }
+    }
+
+    /**
+     * Load template path
+     *
+     * @since 2.4
+     *
+     */
+    public function af_set_template_path($path='') {
+        return AF_PLUGIN_PATH . '/templates';
+    }
+
+    /**
+     * Register dokan query vars
+     *
+     * @since 1.0
+     *
+     * @param array $vars
+     *
+     * @return array new $vars
+     */
+    function register_service_queryvar( $vars ) {
+        $vars[] = 'service';
+        return $vars;
     }
 
 } // Additional_Functions
