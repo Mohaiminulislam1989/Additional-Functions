@@ -150,6 +150,7 @@ class Additional_Functions {
 
         add_filter( 'dokan_get_dashboard_nav', array( $this, 'add_service_page' ), 11, 1 );
         add_action( 'dokan_load_custom_template', array( $this, 'load_template_from_plugin' ) );
+
         add_filter( 'dokan_query_var_filter', array( $this, 'register_service_queryvar' ) );
     }
 
@@ -223,22 +224,9 @@ class Additional_Functions {
      * @return array $query_vars
      */
     function load_template_from_plugin( $query_vars ) {
-// var_dump($query_vars);
         if ( isset( $query_vars['service'] ) ) {
-            add_filter( 'dokan_set_template_path', array( $this, 'af_set_template_path' ), 10 );
-            dokan_get_template_part( 'service/service', '', array( 'pro'=>true ) );
-            return;
+            include ( AF_PLUGIN_PATH . '/templates/service/service.php' );
         }
-    }
-
-    /**
-     * Load template path
-     *
-     * @since 2.4
-     *
-     */
-    public function af_set_template_path($path='') {
-        return AF_PLUGIN_PATH . '/templates';
     }
 
     /**

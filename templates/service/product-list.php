@@ -12,10 +12,10 @@ global $post;
     do_action( 'dokan_before_listing_product' );
     ?>
     <header class="dokan-dashboard-header">
-        <?php if ( dokan_is_seller_enabled( get_current_user_id() ) && current_user_can( 'dokan_add_booking_product') ) { ?>
-        <h1 class="entry-title"><?php _e( $title , 'dokan' ); ?>
+        <?php if ( dokan_is_seller_enabled( get_current_user_id() ) ) { ?>
+        <h1 class="entry-title"><?php _e( 'Service Products' , 'dokan' ); ?>
             <span class="dokan-add-product-link">
-                <a href="<?php _e( $booking_url.'new-product','dokan' );?>" class="dokan-btn dokan-btn-theme dokan-right dokan-add-new-product"><i class="fa fa-briefcase">&nbsp;</i> <?php _e( 'Add New Service Product', 'dokan' ) ?></a>
+                <a href="<?php _e( $service_url.'new-product','dokan' );?>" class="dokan-btn dokan-btn-theme dokan-right dokan-add-new-product"><i class="fa fa-briefcase">&nbsp;</i> <?php _e( 'Add New Service Product', 'dokan' ) ?></a>
             </span>
         </h1>
         <?php } ?>
