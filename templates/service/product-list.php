@@ -61,7 +61,7 @@ global $post;
                             array(
                                 'taxonomy' => 'product_type',
                                 'field'    => 'slug',
-                                'terms'    => 'booking',
+                                'terms'    => 'service',
                                 ),
                             ),
                         );
@@ -86,7 +86,7 @@ global $post;
                             array(
                                 'taxonomy' => 'product_type',
                                 'field'    => 'slug',
-                                'terms'    => 'booking',
+                                'terms'    => 'service',
                                 ),
                             );
                     }
@@ -106,7 +106,7 @@ global $post;
                             $tr_class = ($post->post_status == 'pending' ) ? ' class="danger"' : '';
                             $product = dokan_wc_get_product( $post->ID );
 
-                            $edit_url = dokan_get_navigation_url( 'booking' ).'edit/?product_id=' . $post->ID;
+                            $edit_url = dokan_get_navigation_url( 'service' ).'edit/?product_id=' . $post->ID;
                             ?>
                             <tr<?php echo $tr_class; ?>>
                             <td>
@@ -117,21 +117,15 @@ global $post;
 
                                 <div class="row-actions">
                                     <span class="edit"><a href="<?php echo $edit_url; ?>"><?php _e( 'Edit', 'dokan' ); ?></a> | </span>
+                                    <span class="delete"><a onclick="return confirm('Are you sure?');" href="
                                     <?php
-                                    if ( current_user_can( 'dokan_delete_booking_product' ) ) {
-                                        ?>
-                                        <span class="delete"><a onclick="return confirm('Are you sure?');" href="
-                                        <?php
-                                        echo wp_nonce_url( add_query_arg( array(
-                                        'action' => 'dokan-delete-product',
-                                        'product_id' => $post->ID, 'tab' => 'booking' ),
-                                         dokan_get_navigation_url('booking') ), 'dokan-delete-product' );
-                                        ?>
-                                        ">
-                                        <?php _e( 'Delete Permanently', 'dokan' ); ?></a> | </span>
-                                    <?php
-                                    }
+                                    echo wp_nonce_url( add_query_arg( array(
+                                    'action' => 'dokan-delete-product',
+                                    'product_id' => $post->ID,  'tab' => 'service' ),
+                                     dokan_get_navigation_url('service') ), 'dokan-delete-product' );
                                     ?>
+                                    ">
+                                    <?php _e( 'Delete Permanently', 'dokan' ); ?></a> | </span>
 
                                     <span class="view"><a href="<?php echo get_permalink( $product->get_id() ); ?>" rel="permalink"><?php _e( 'View', 'dokan' ); ?></a></span>
                                 </div>
@@ -249,7 +243,7 @@ global $post;
                     wp_reset_postdata();
 
                     $pagenum      = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
-                    $base_url = dokan_get_navigation_url('booking');
+                    $base_url = dokan_get_navigation_url('service');
 
                     if ( $product_query->max_num_pages > 1 ) {
                         echo '<div class="pagination-wrap">';

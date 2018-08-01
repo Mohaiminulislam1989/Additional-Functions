@@ -21,19 +21,23 @@ if ( isset( $_GET['product_id'] ) ) {
 
     $_enable_reviews = $post->comment_status;
 }
-//
-//$_downloadable   = get_post_meta( $post_id, '_downloadable', true );
-//$_stock          = get_post_meta( $post_id, '_stock', true );
-//$_stock_status   = get_post_meta( $post_id, '_stock_status', true );
-$_virtual               = get_post_meta( $post_id, '_virtual', true );
-$is_virtual             = ( 'yes' == $_virtual ) ? true : false;
-$has_persons  = get_post_meta( $post_id, '_wc_booking_has_persons', true );
-$has_resource = get_post_meta( $post_id, '_wc_booking_has_resources', true );
 
-$template_args = array(
-    'is_booking' => true,
-    'post_id'    => $post_id
-);
+$_regular_price         = get_post_meta( $post_id, '_regular_price', true );
+$_sale_price            = get_post_meta( $post_id, '_sale_price', true );
+$is_discount            = !empty( $_sale_price ) ? true : false;
+$_sale_price_dates_from = get_post_meta( $post_id, '_sale_price_dates_from', true );
+$_sale_price_dates_to   = get_post_meta( $post_id, '_sale_price_dates_to', true );
+
+$_sale_price_dates_from = !empty( $_sale_price_dates_from ) ? date_i18n( 'Y-m-d', $_sale_price_dates_from ) : '';
+$_sale_price_dates_to   = !empty( $_sale_price_dates_to ) ? date_i18n( 'Y-m-d', $_sale_price_dates_to ) : '';
+$show_schedule          = false;
+
+if ( !empty( $_sale_price_dates_from ) && !empty( $_sale_price_dates_to ) ) {
+$show_schedule          = true;
+}
+
+$_virtual     = get_post_meta( $post_id, '_virtual', true );
+$is_virtual   = ( 'yes' == $_virtual ) ? true : false;
 ?>
 
 <header class="dokan-dashboard-header dokan-clearfix">
@@ -115,6 +119,58 @@ $template_args = array(
                             </div>
                             <?php dokan_post_input_box( $post_id, 'post_title', array( 'placeholder' => __( 'Product name..', 'dokan' ), 'value' => $post_title ) ); ?>
                         </div>
+
+                        <div class="dokan-clearfix">
+
+                                    <div class="dokan-form-group dokan-clearfix dokan-price-container">
+
+                                        <div class="content-half-part regular-price">
+                                            <label for="_regular_price" class="form-label"><?php _e( 'Price', 'dokan-lite' ); ?>
+                                                <span class="vendor-earning" data-commission="<?php echo dokan_get_seller_percentage( dokan_get_current_user_id(), $post_id ); ?>" data-commission_type="<?php echo dokan_get_commission_type( dokan_get_current_user_id(), $post_id ); ?>">( <?php _e( ' You Earn : ', 'dokan-lite' ) ?><?php echo get_woocommerce_currency_symbol() ?><span class="vendor-price">0.00</span> )</span>
+                                            </label>
+                                            <div class="dokan-input-group">
+                                                <span class="dokan-input-group-addon"><?php echo get_woocommerce_currency_symbol(); ?></span>
+                                                <?php dokan_post_input_box( $post_id, '_regular_price', array( 'class' => 'dokan-product-regular-price', 'placeholder' => __( '0.00', 'dokan-lite' ) ), 'number' ); ?>
+                                            </div>
+                                        </div>
+
+                                        <div class="content-half-part sale-price">
+                                            <label for="_sale_price" class="form-label">
+                                                <?php _e( 'Discounted Price', 'dokan-lite' ); ?>
+                                                <a href="#" class="sale_schedule <?php echo ($show_schedule ) ? 'dokan-hide' : ''; ?>"><?php _e( 'Schedule', 'dokan-lite' ); ?></a>
+                                                <a href="#" class="cancel_sale_schedule <?php echo ( ! $show_schedule ) ? 'dokan-hide' : ''; ?>"><?php _e( 'Cancel', 'dokan-lite' ); ?></a>
+                                            </label>
+
+                                            <div class="dokan-input-group">
+                                                <span class="dokan-input-group-addon"><?php echo get_woocommerce_currency_symbol(); ?></span>
+                                                <?php dokan_post_input_box( $post_id, '_sale_price', array( 'class' => 'dokan-product-sales-price','placeholder' => __( '0.00', 'dokan-lite' ) ), 'number' ); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="dokan-form-group dokan-clearfix dokan-price-container">
+                                        <div class="dokan-product-less-price-alert dokan-hide">
+                                            <?php _e('Product price can\'t be less than the vendor fee!', 'dokan-lite' ); ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="sale_price_dates_fields dokan-clearfix dokan-form-group <?php echo ( ! $show_schedule ) ? 'dokan-hide' : ''; ?>">
+                                        <div class="content-half-part from">
+                                            <div class="dokan-input-group">
+                                                <span class="dokan-input-group-addon"><?php _e( 'From', 'dokan-lite' ); ?></span>
+                                                <input type="text" name="_sale_price_dates_from" class="dokan-form-control datepicker" value="<?php echo esc_attr( $_sale_price_dates_from ); ?>" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder="<?php _e( 'YYYY-MM-DD', 'dokan-lite' ); ?>">
+                                            </div>
+                                        </div>
+
+                                        <div class="content-half-part to">
+                                            <div class="dokan-input-group">
+                                                <span class="dokan-input-group-addon"><?php _e( 'To', 'dokan-lite' ); ?></span>
+                                                <input type="text" name="_sale_price_dates_to" class="dokan-form-control datepicker" value="<?php echo esc_attr( $_sale_price_dates_to ); ?>" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder="<?php _e( 'YYYY-MM-DD', 'dokan-lite' ); ?>">
+                                            </div>
+                                        </div>
+                                    </div><!-- .sale-schedule-container -->
+                                </div>
+
                         <div class="dokan-form-group virtual-checkbox">
                             <label>
                                 <input type="checkbox" <?php checked( $is_virtual, true ); ?> class="_is_virtual" name="_virtual" id="_virtual"> <?php _e( 'Virtual', 'dokan' ); ?> <i class="fa fa-question-circle tips" aria-hidden="true" data-title="<?php _e( 'Virtual products are intangible and aren\'t shipped.', 'dokan' ); ?>"></i>
@@ -245,354 +301,6 @@ $template_args = array(
                         </div> <!-- .product-gallery -->
                     </div><!-- .content-half-part -->
                 </div><!-- .dokan-form-top-area -->
-                <div class="booking_fields">
-                    <?php
-                    $duration_type = get_post_meta( $post_id, '_wc_booking_duration_type', true );
-                    $duration      = max( absint( get_post_meta( $post_id, '_wc_booking_duration', true ) ), 1 );
-                    $duration_unit = get_post_meta( $post_id, '_wc_booking_duration_unit', true );
-
-                    //availability
-                    $wc_booking_qty        = max( absint( get_post_meta( $post_id, '_wc_booking_qty', true ) ), 1 );
-                    $booking_min_date_unit = get_post_meta( $post_id, '_wc_booking_min_date_unit', true );
-                    $booking_max_date_unit = get_post_meta( $post_id, '_wc_booking_max_date_unit', true );
-
-
-                    $booking_buffer_period  = absint( get_post_meta( $post_id, '_wc_booking_buffer_period', true ) );
-                    $adjacent_buffer_period = get_post_meta( $post_id, '_wc_booking_apply_adjacent_buffer', true );
-
-                    $booking_default_date_availability = get_post_meta( $post_id, '_wc_booking_default_date_availability', true );
-                    $booking_check_availability = get_post_meta( $post_id, '_wc_booking_check_availability_against', true );
-
-                    $booking_range_picker = get_post_meta( $post_id, '_wc_booking_enable_range_picker', true );
-                    $booking_first_block  = get_post_meta( $post_id, '_wc_booking_first_block_time', true );
-
-                    $booking_confirmation = get_post_meta( $post_id, '_wc_booking_requires_confirmation', true );
-                    $booking_cancellation = get_post_meta( $post_id, '_wc_booking_user_can_cancel', true );
-                    $cancellation_limit   = get_post_meta( $post_id, '_wc_booking_cancel_limit', true );
-                    $cancellation_limit_unit = get_post_meta( $post_id, '_wc_booking_cancel_limit_unit', true );
-                    //costs
-                    //resources
-                    $booking_resource_label      = get_post_meta( $post_id, '_wc_booking_resource_label', true );
-                    $booking_resource_assignment = get_post_meta( $post_id, '_wc_booking_resources_assignment', true );
-
-                    $calendar_display_mode = get_post_meta($post_id,'_wc_booking_calendar_display_mode',true);
-
-                    ?>
-
-                    <div class="">
-                        <label for="_wc_booking_duration_type" class="form-label"><?php _e( 'Booking duration', 'dokan' ); ?></label>
-                        <div class="dokan-input-group">
-                            <select name="_wc_booking_duration_type" id="_wc_booking_duration_type" class="dokan-form-control" style="width: auto; margin-right: 7px;">
-                                <option value="fixed" <?php selected( $duration_type, 'fixed' ); ?>><?php _e( 'Fixed blocks of', 'dokan' ); ?></option>
-                                <option value="customer" <?php selected( $duration_type, 'customer' ); ?>><?php _e( 'Customer defined blocks of', 'dokan' ); ?></option>
-                            </select>
-                            <input type="number" class="dokan-form-control" name="_wc_booking_duration" id="_wc_booking_duration" value="<?php echo $duration; ?>" step="1" min="1" style="margin-right: 7px; width: 4em;">
-                            <select name="_wc_booking_duration_unit" id="_wc_booking_duration_unit" class="dokan-form-control short" style="width: auto; margin-right: 7px;">
-                                <option value="month" <?php selected( $duration_unit, 'month' ); ?>><?php _e( 'Month(s)', 'dokan' ); ?></option>
-                                <option value="day" <?php selected( $duration_unit, 'day' ); ?>><?php _e( 'Day(s)', 'dokan' ); ?></option>
-                                <option value="hour" <?php selected( $duration_unit, 'hour' ); ?>><?php _e( 'Hour(s)', 'dokan' ); ?></option>
-                                <option value="minute" <?php selected( $duration_unit, 'minute' ); ?>><?php _e( 'Minutes(s)', 'dokan' ); ?></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="show_if_custom_block" style="display: none">
-                        <div class="content-half-part">
-                            <div class="dokan-form-group">
-                                <label for="_wc_booking_min_duration" class="form-label"><?php _e( 'Minimum duration', 'dokan' ); ?></label>
-                                <?php dokan_post_input_box( $post_id, '_wc_booking_min_duration', array( 'min' => '1', 'step' => 1, 'value' => max( absint( get_post_meta( $post_id, '_wc_booking_min_duration', true ) ), 1 ) ), 'number' ); ?>
-                            </div>
-                        </div>
-                        <div class="content-half-part">
-                            <div class="dokan-form-group">
-                                <label for="_wc_booking_max_duration" class="form-label"><?php _e( 'Maximum duration', 'dokan' ); ?></label>
-                                <?php dokan_post_input_box( $post_id, '_wc_booking_max_duration', array( 'min' => '1', 'step' => 1, 'value' => max( absint( get_post_meta( $post_id, '_wc_booking_max_duration', true ) ), 1 ) ), 'number' ); ?>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dokan-form-group">
-                        <label for="_wc_booking_calendar_display_mode" class="form-label"><?php _e( 'Calendar display mode', 'dokan' );?></label>
-                        <select name="_wc_booking_calendar_display_mode" id="_wc_booking_calendar_display_mode" class="dokan-form-control short" style="width: auto; margin-right: 7px;">
-                            <option value="" <?php selected( $calendar_display_mode, '' ); ?>><?php _e( 'Display calendar on click', 'dokan' ); ?></option>
-                            <option value="always_visible" <?php selected( $calendar_display_mode, 'always_visible' ); ?>><?php _e( 'Calendar always visible', 'dokan' ); ?></option>
-                        </select>
-                    </div>
-
-                    <div class="dokan-form-group dokan-booking-enable-range-picker">
-                        <label>
-                            <!--<input name="_wc_booking_enable_range_picker" id="_wc_booking_enable_range_picker" value="0" type="hidden" >-->
-                            <input name="_wc_booking_enable_range_picker" id="_wc_booking_enable_range_picker" value="1" type="checkbox" <?php checked( $booking_range_picker ); ?> class="dokan-booking-confirmation"> <?php _e( 'Enable Calendar Range Picker?', 'dokan' ); ?>
-                            <span class="dokan-tooltips-help tips" title="" data-original-title="<?php _e( 'Lets the user select a start and end date on the calendar - duration will be calculated automatically.', 'dokan' ) ?>">
-                                <i class="fa fa-question-circle"></i>
-                            </span>
-                        </label>
-                    </div>
-
-                    <div class="dokan-form-group dokan-booking-require-confirmation">
-                        <label>
-                            <!--<input name="_wc_booking_requires_confirmation" id="_wc_booking_requires_confirmation" value="0" type="hidden" >-->
-                            <input name="_wc_booking_requires_confirmation" id="_wc_booking_requires_confirmation" value="1" type="checkbox" <?php checked( $booking_confirmation ); ?> class="dokan-booking-confirmation"> <?php _e( 'Requires Confirmation', 'dokan' ); ?>
-                            <span class="dokan-tooltips-help tips" title="" data-original-title="<?php _e( 'Check this box if the booking requires YOUR approval/confirmation. Payment will not be taken during CHECKOUT.', 'dokan' ) ?>">
-                                <i class="fa fa-question-circle"></i>
-                            </span>
-                        </label>
-                    </div>
-
-                    <div class="dokan-form-group">
-
-                        <label>
-
-                            <!--<input name="_wc_booking_user_can_cancel" value="0" type="hidden">-->
-                            <input name="_wc_booking_user_can_cancel" id="_wc_booking_user_can_cancel" value="1" type="checkbox" <?php checked( $booking_cancellation, true ); ?> class="dokan-booking-confirmation"> <?php _e( 'Can Be Cancelled ?', 'dokan' ); ?>
-                            <span class="dokan-tooltips-help tips" title="" data-original-title="<?php _e( 'Check this box if the booking can be cancelled by the customer after it has been purchased. A refund will not be sent automatically.', 'dokan' ) ?>">
-                                <i class="fa fa-question-circle"></i>
-                            </span>
-
-                        </label>
-                    </div>
-                    <div class="dokan-form-group form-field booking-cancel-limit">
-                        <label for="_wc_booking_cancel_limit" class="form-label"><?php _e( 'Booking can be cancelled ', 'dokan' ); ?></label>
-                        <input type="number" class="dokan-form-control" name="_wc_booking_cancel_limit" id="_wc_booking_cancel_limit" value="<?php echo max( absint( $cancellation_limit ), 1 ); ?>" step="1" min="1" style="display: inline-block; margin-right: 7px; width: 4em;">
-                        <select name="_wc_booking_cancel_limit_unit" id="_wc_booking_cancel_limit_unit" class="dokan-form-control short" style="display: inline; width: auto; margin-right: 7px;">
-                            <option value="month" <?php selected( $cancellation_limit_unit, 'month' ); ?>><?php _e( 'Month(s)', 'dokan' ); ?></option>
-                            <option value="week" <?php selected( $cancellation_limit_unit, 'week' ); ?>><?php _e( 'Week(s)', 'dokan' ); ?></option>
-                            <option value="day" <?php selected( $cancellation_limit_unit, 'day' ); ?>><?php _e( 'Day(s)', 'dokan' ); ?></option>
-                            <option value="hour" <?php selected( $cancellation_limit_unit, 'hour' ); ?>><?php _e( 'Hour(s)', 'dokan' ); ?></option>
-                        </select>
-                        <span class="form-label"><?php _e( 'before start date', 'dokan' ); ?></span>
-                    </div>
-
-                    <!--Attributes section-->
-                    <?php
-                        if ( $post_id ) {
-                            $product_attributes   = get_post_meta( $post_id, '_product_attributes', true );
-                            $attribute_taxonomies = wc_get_attribute_taxonomies();
-                            dokan_get_template_part( 'booking/html-attributes', '', array(
-                                'is_booking'           => true,
-                                'post_id'              => $post_id,
-                                'product_attributes'   => $product_attributes,
-                                'attribute_taxonomies' => $attribute_taxonomies,
-                            ) );
-                        }
-                    ?>
-                    <!--shipping and tax section-->
-                   <?php
-                        $user_id                 = dokan_get_current_user_id();
-                        $processing_time         = dokan_get_shipping_processing_times();
-                        $_required_tax           = get_post_meta( $post_id, '_required_tax', true );
-                        $_disable_shipping       = ( get_post_meta( $post_id, '_disable_shipping', true ) ) ? get_post_meta( $post_id, '_disable_shipping', true ) : 'no';
-                        $_additional_price       = get_post_meta( $post_id, '_additional_price', true );
-                        $_additional_qty         = get_post_meta( $post_id, '_additional_qty', true );
-                        $_processing_time        = get_post_meta( $post_id, '_dps_processing_time', true );
-                        $dps_shipping_type_price = get_user_meta( $user_id, '_dps_shipping_type_price', true );
-                        $dps_additional_qty      = get_user_meta( $user_id, '_dps_additional_qty', true );
-                        $dps_pt                  = get_user_meta( $user_id, '_dps_pt', true );
-                        $classes_options         = Dokan_Pro_Products::init()->get_tax_class_option();
-                        $porduct_shipping_pt     = ( $_processing_time ) ? $_processing_time : $dps_pt;
-
-                        dokan_get_template_part( 'booking/html-shipping-tax', '', array(
-                            'is_booking'              => true,
-                            'post_id'                 => $post_id,
-                            'user_id'                 => $user_id,
-                            'processing_time'         => $processing_time,
-                            '_required_tax'           => $_required_tax,
-                            '_disable_shipping'       => $_disable_shipping,
-                            '_additional_price'       => $_additional_price,
-                            '_additional_qty'         => $_additional_qty,
-                            '_processing_time'        => $_processing_time,
-                            'dps_shipping_type_price' => $dps_shipping_type_price,
-                            'dps_additional_qty'      => $dps_additional_qty,
-                            'dps_pt'                  => $dps_pt,
-                            'classes_options'         => $classes_options,
-                            'porduct_shipping_pt'     => $porduct_shipping_pt,
-                        ) );
-                    ?>
-                    <input type="hidden" name="dokan-edit-product-id" id="dokan-edit-product-id" value="<?php echo $post_id; ?>">
-
-                    <div id="bookings_availability" class="bookings_availability availability_fields dokan-edit-row dokan-clearfix">
-
-                        <div class="dokan-section-heading" data-togglehandler="bookings_availability">
-                            <h2><i class="fa fa-calendar" aria-hidden="true"></i> <?php _e( 'Availability' , 'dokan' ) ?></h2>
-                            <p><?php _e( 'Set Availability options' , 'dokan' ) ?></p>
-                            <a href="#" class="dokan-section-toggle">
-                                <i class="fa fa-sort-desc fa-flip-vertical" aria-hidden="true" style="margin-top: 9px;"></i>
-                            </a>
-                            <div class="dokan-clearfix"></div>
-                        </div>
-
-                        <div class="dokan-section-content">
-                            <div class="dokan-form-group">
-                                <label for="_wc_booking_qty" class="form-label"><?php _e( 'Max bookings per block', 'dokan' ); ?></label>
-                                <?php dokan_post_input_box( $post_id, '_wc_booking_qty', array( 'min' => '1', 'step' => 1, 'value' => $wc_booking_qty ), 'number' ); ?>
-                            </div>
-                            <div class="dokan-input-group content-half-part">
-                                <label for="_wc_booking_min_date" class="form-label"><?php _e( 'Minimum booking window ( into the future )', 'dokan' ); ?></label>
-                                <input type="number" class="dokan-form-control" name="_wc_booking_min_date" id="_wc_booking_min_date" value="<?php echo max( absint( get_post_meta( $post_id, '_wc_booking_min_date', true ) ), 1 ); ?>" step="1" min="1" style="margin-right: 7px; width: 4em;">
-                                <select name="_wc_booking_min_date_unit" id="_wc_booking_min_date_unit" class="dokan-form-control short" style="width: auto; margin-right: 7px;">
-                                    <option value="month" <?php selected( $booking_min_date_unit, 'month' ); ?>><?php _e( 'Month(s)', 'dokan' ); ?></option>
-                                    <option value="week" <?php selected( $booking_min_date_unit, 'week' ); ?>><?php _e( 'Week(s)', 'dokan' ); ?></option>
-                                    <option value="day" <?php selected( $booking_min_date_unit, 'day' ); ?>><?php _e( 'Day(s)', 'dokan' ); ?></option>
-                                    <option value="hour" <?php selected( $booking_min_date_unit, 'hour' ); ?>><?php _e( 'Hour(s)', 'dokan' ); ?></option>
-                                </select>
-                            </div>
-
-
-                            <div class="dokan-input-group content-half-part">
-                                <label for="_wc_booking_max_date" class="form-label"><?php _e( 'Maximum booking window ( into the future )', 'dokan' ); ?></label>
-                                <input type="number" class="dokan-form-control" name="_wc_booking_max_date" id="_wc_booking_max_date" value="<?php echo max( absint( get_post_meta( $post_id, '_wc_booking_max_date', true ) ), 1 ); ?>" step="1" min="1" style="margin-right: 7px; width: 4em;">
-                                <select name="_wc_booking_max_date_unit" id="_wc_booking_max_date_unit" class="dokan-form-control short" style="width: auto; margin-right: 7px;">
-                                    <option value="month" <?php selected( $booking_max_date_unit, 'month' ); ?>><?php _e( 'Month(s)', 'dokan' ); ?></option>
-                                    <option value="week" <?php selected( $booking_max_date_unit, 'week' ); ?>><?php _e( 'Week(s)', 'dokan' ); ?></option>
-                                    <option value="day" <?php selected( $booking_max_date_unit, 'day' ); ?>><?php _e( 'Day(s)', 'dokan' ); ?></option>
-                                    <option value="hour" <?php selected( $booking_max_date_unit, 'hour' ); ?>><?php _e( 'Hour(s)', 'dokan' ); ?></option>
-                                </select>
-                            </div>
-
-                            <div class="dokan-form-group">
-                                <label for="_wc_booking_buffer_period" class="form-label"><?php _e( 'Require a buffer period of ( ', 'dokan' ); ?><span id='_booking_binded_label'>minutes</span><?php _e( ' ) between bookings', 'dokan' ); ?></label>
-                                <?php dokan_post_input_box( $post_id, '_wc_booking_buffer_period', array( 'step' => 1, 'value' => $booking_buffer_period ), 'number' ); ?>
-                            </div>
-
-                            <div class="dokan-form-group">
-                                <label class="form-label">
-                                    <!--<input name="_wc_booking_apply_adjacent_buffer" id="_wc_booking_apply_adjacent_buffer" value="0" type="hidden" >-->
-                                    <input name="_wc_booking_apply_adjacent_buffer" id="_wc_booking_apply_adjacent_buffer" value="1" type="checkbox" <?php checked( $adjacent_buffer_period ); ?> class="dokan-booking-adjacent-buffer"> <?php _e( 'Adjacent Buffering ?', 'dokan' ); ?>
-                                    <span class="dokan-tooltips-help tips" title="" data-original-title="<?php _e( 'By default buffer period applies forward into the future of a booking. Enabling this option will apply adjacently (before and after Bookings)', 'dokan' ) ?>">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </label>
-                            </div>
-
-                            <div class="dokan-form-group">
-                                <label for="_wc_booking_default_date_availability" class="form-label"><?php _e( 'All dates are...', 'dokan' ); ?></label>
-                                <select name="_wc_booking_default_date_availability" id="_wc_booking_default_date_availability" class="dokan-form-control short" style="width: auto; margin-right: 7px;">
-                                    <option value="available" <?php selected( $booking_default_date_availability, 'available' ); ?>><?php _e( 'available by default', 'dokan' ); ?></option>
-                                    <option value="non-available" <?php selected( $booking_default_date_availability, 'non-available' ); ?>><?php _e( 'not-available by default', 'dokan' ); ?></option>
-                                </select>
-                                <span class="form-label"><i><?php _e( 'This option affects how you use the rules below.', 'dokan' ); ?></i></span>
-                            </div>
-
-                            <div class="dokan-form-group">
-                                <label for="_wc_booking_check_availability_against" class="form-label"><?php _e( 'Check rules against...', 'dokan' ); ?></label>
-                                <select name="_wc_booking_check_availability_against" id="_wc_booking_check_availability_against" class="dokan-form-control short" style="width: auto; margin-right: 7px;">
-                                    <option value="" <?php selected( $booking_check_availability, "" ); ?>><?php _e( 'All blocks being booked', 'dokan' ); ?></option>
-                                    <option value="start" <?php selected( $booking_check_availability, true ); ?>><?php _e( 'The starting block only', 'dokan' ); ?></option>
-                                </select>
-                                <span class="form-label"><i><?php _e( 'This option affects how bookings are checked for availability.', 'dokan' ); ?></i></span>
-                            </div>
-
-                            <div class="dokan-form-group _wc_booking_first_block_time_field">
-                                <label for="_wc_booking_first_block_time" class="form-label"><?php _e( 'First block starts at...', 'dokan' ); ?></label>
-                                <input type="time" name="_wc_booking_first_block_time" id="_wc_booking_first_block_time" value="<?php echo $booking_first_block ?>" placeholder="HH:MM:">
-                            </div>
-                            <div class="dokan-form-group">
-                                <label for="_wc_booking_range_availability" class="form-label"><?php _e( 'Set Availability Range :', 'dokan' ); ?></label>
-                            </div>
-
-                            <div class="table_grid dokan-booking-range-table">
-                                <table class="widefat">
-                                    <thead>
-                                        <tr>
-                                            <th class="sort" width="1%">&nbsp;</th>
-                                            <th><?php _e( 'Range type', 'dokan' ); ?></th>
-                                            <th><?php _e( 'Range', 'dokan' ); ?></th>
-                                            <th></th>
-                                            <th></th>
-                                            <th>
-                                                <?php _e( 'Bookable', 'dokan' ); ?>
-                                                <span class="dokan-tooltips-help tips" title="" data-original-title="<?php _e( 'If not bookable, users won\'t be able to choose this block for their booking.', 'dokan' ); ?>">
-                                                    <i class="fa fa-question-circle"></i>
-                                                </span>
-                                            </th>
-                                            <th>
-
-                                                <?php _e( 'Priority', 'dokan' ); ?>
-                                                <span class="dokan-tooltips-help tips" title="" data-original-title="<?php _e( 'The lower the priority number, the earlier this rule gets applied. By default, global rules take priority over product rules which take priority over resource rules. By using priority numbers you can execute rules in different orders.', 'dokan' ); ?>">
-                                                    <i class="fa fa-question-circle"></i>
-                                                </span>
-                                            </th>
-                                            <th class="remove" width="1%">&nbsp;</th>
-                                        </tr>
-                                    </thead>
-                                    <tfoot>
-                                        <tr>
-                                            <th colspan="8">
-                                                <a href="#" class="button button-primary add_row dokan-btn dokan-btn-theme" data-row="<?php
-                                                ob_start();
-                                                include( DOKAN_WC_BOOKING_TEMPLATE_PATH.'booking/html-booking-availability-fields.php' );
-                                                $html = ob_get_clean();
-                                                echo esc_attr( $html );
-                                                ?>"><?php _e( 'Add Range', 'dokan' ); ?></a>
-                                                <span class="description"><?php _e( 'Rules with lower numbers will execute first. Rules further down this table with the same priority will also execute first.', 'dokan' ); ?></span>
-                                            </th>
-                                        </tr>
-                                    </tfoot>
-                                    <tbody id="availability_rows">
-                                        <?php
-                                        $values                      = get_post_meta( $post_id, '_wc_booking_availability', true );
-                                        if ( !empty( $values ) && is_array( $values ) ) {
-                                            foreach ( $values as $availability ) {
-                                                include(  DOKAN_WC_BOOKING_TEMPLATE_PATH.'booking/html-booking-availability-fields.php' );
-                                            }
-                                        }
-                                        ?>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                        </div>
-                    </div>
-                    <?php dokan_get_template_part( 'booking/html-dokan-booking-pricing', '', $template_args );?>
-                    <div class='extra_options dokan-edit-row'>
-                         <div class="dokan-section-heading" data-togglehandler="extra_options">
-                            <h2><i class="fa fa-cubes" aria-hidden="true"></i> <?php _e( 'Extra Options' , 'dokan' ) ?></h2>
-                            <p><?php _e( 'Set more options' , 'dokan' ) ?></p>
-                            <a href="#" class="dokan-section-toggle">
-                                <i class="fa fa-sort-desc fa-flip-vertical" aria-hidden="true" style="margin-top: 9px;"></i>
-                            </a>
-                            <div class="dokan-clearfix"></div>
-                        </div>
-                        <div class="dokan-section-content dokan-clearfix" >
-                            <?php
-                            if ( empty( $post_id ) ) {
-                                _e( 'Please Save the Product to add extra options ( Persons or Resources )', 'dokan' );
-                                $type = 'hidden';
-                            } else {
-                            ?>
-                                <div class="dokan-form-group">
-                                    <label>
-                                        <input name="_wc_booking_has_persons" id="_wc_booking_has_persons" type="checkbox" <?php checked( $has_persons, true ); ?> class="dokan-booking-person"> <?php _e( 'Has persons', 'dokan' ); ?>
-                                    </label>
-
-                                </div>
-                                <div class="dokan-form-group">
-                                    <label>
-                                        <input name="_wc_booking_has_resources" id="_wc_booking_has_resources" type="checkbox" <?php checked( $has_resource, true ); ?> class="dokan-booking-resource"> <?php _e( 'Has resources', 'dokan' ); ?>
-                                    </label>
-                                </div>
-                            <?php
-                            }
-                            ?>
-                        </div>
-                    </div>
-                    <div class='dokan-clearfix'></div>
-
-
-                    <?php
-                    if ( !empty( $post_id ) ) {
-                       dokan_get_template_part( 'booking/persons/html-booking-persons', '', $template_args );
-
-                       $resource_args = array(
-                            'is_booking'                  => true,
-                            'post_id'                     => $post_id,
-                            'booking_resource_label'      => $booking_resource_label,
-                            'booking_resource_assignment' => $booking_resource_assignment,
-                        );
-                        dokan_get_template_part( 'booking/resources/html-booking-resources', '', $resource_args );
-                    }
-                    ?>
-
-                </div>
 
                 <div class="dokan-product-short-description">
                     <label for="post_excerpt" class="form-label"><?php _e( 'Short Description', 'dokan' ); ?></label>
@@ -666,8 +374,6 @@ $template_args = array(
                 </div><!-- .dokan-other-options -->
                 <?php
 
-                    dokan_get_template_part( 'booking/persons/html-other-options', '', $template_args  );
-
                     do_action( 'dokan_product_edit_after_options' );
 
                     wp_nonce_field( 'dokan_edit_product', 'dokan_edit_product_nonce' );
@@ -677,7 +383,7 @@ $template_args = array(
                     <input type="submit" name="dokan_update_product" class="dokan-btn dokan-btn-theme dokan-btn-lg btn-block" value="<?php esc_attr_e( 'Save Product', 'dokan' ); ?>"/>
 
                 <?php else: ?>
-
+                    <div class="dokan-form-group dokan-clearfix"></div>
                     <?php wp_nonce_field( 'dokan_add_new_product', 'dokan_add_new_product_nonce' ); ?>
                     <input type="hidden" name="add_product" value="<?php esc_attr_e( 'Save Product', 'dokan' ); ?>"/>
                     <input type="submit" name="add_product" class="dokan-btn dokan-btn-theme dokan-btn-lg btn-block" value="<?php esc_attr_e( 'Save Product', 'dokan' ); ?>"/>
@@ -689,7 +395,7 @@ $template_args = array(
                 <input type="hidden" name="_sku" value=""/>
                 <input type="hidden" name="product_shipping_class" value="-1"/>
                 <input type="hidden" name="price" value=""/>
-                <input type="hidden" name="product_type" value="booking"/>
+                <input type="hidden" name="product_type" value="service"/>
             </form>
 
                 <?php } else { ?>
@@ -708,26 +414,3 @@ $template_args = array(
     wp_reset_postdata();
     ?>
 </div> <!-- #primary .content-area -->
-<script type="text/javascript">
-        ( function ( $ ) {
-
-            $( document ).ready( function () {
-                var duration_type = $( 'select#_wc_booking_duration_type' );
-                duration_type.on( 'change', function () {
-                    if ( duration_type.val() == 'customer' ) {
-                        $( '.show_if_custom_block' ).show();
-                    } else {
-                        $( '.show_if_custom_block' ).hide();
-                    }
-                } );
-
-                var duration_unit = $( 'select#_wc_booking_duration_unit' );
-                var duration_label = $( 'span#_booking_binded_label' );
-                duration_unit.on( 'change', function () {
-                    duration_label.html( duration_unit.val() + 's' );
-                } );
-            } );
-
-        } )( jQuery );
-
-</script>

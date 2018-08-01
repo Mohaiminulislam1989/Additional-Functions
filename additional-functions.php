@@ -148,10 +148,23 @@ class Additional_Functions {
         // Loads frontend scripts and styles
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
+        add_filter( 'product_type_selector', array( $this, 'add_service_type' ) );
+
         add_filter( 'dokan_get_dashboard_nav', array( $this, 'add_service_page' ), 11, 1 );
         add_action( 'dokan_load_custom_template', array( $this, 'load_template_from_plugin' ) );
 
         add_filter( 'dokan_query_var_filter', array( $this, 'register_service_queryvar' ) );
+        add_filter( 'dokan_product_listing_exclude_type', array( $this, 'filter_service_type_product' ) );
+
+        add_filter( 'dokan_dashboard_nav_active', array( $this, 'set_service_menu_as_active' ) );
+
+        add_filter( 'dokan_add_new_product_redirect', array( $this, 'set_redirect_url' ), 10, 2 );
+
+        // add_action( 'dokan_new_product_added', array( $this, 'save_service_product_data' ), 10 );
+        // add_action( 'dokan_product_updated', array( $this, 'save_service_product_data' ), 10 );
+
+        add_action('admin_footer', array( $this, 'show_service_admin_custom_js' ) );
+        add_filter( 'product_type_options', array( $this, 'show_service_virtual' ) );
     }
 
     /**
@@ -193,6 +206,12 @@ class Additional_Functions {
         // $translation_array = array( 'some_string' => __( 'Some string to translate', 'af' ), 'a_value' => '10' );
         // wp_localize_script( 'base-plugin-scripts', 'af', $translation_array ) );
 
+    }
+
+    public function add_service_type ( $type ) {
+        // Key should be exactly the same as in the class product_type
+        $type[ 'service' ] = __( 'Service' );
+        return $type;
     }
 
 
@@ -243,6 +262,137 @@ class Additional_Functions {
         return $vars;
     }
 
+    /**
+     * Register dokan query vars
+     *
+     * @since 1.0
+     *
+     * @param array $vars
+     *
+     * @return array new $vars
+     */
+    function filter_service_type_product( $type ) {
+        $type[] = 'service';
+        return $type;
+    }
+
+    /**
+     * Highlight Service menu as active on Dokan Dashboard
+     *
+     * @since 1.0
+     *
+     * @param string $active_menu
+     *
+     * @return string
+     */
+    function set_service_menu_as_active( $active_menu ) {
+        if ( 'service/new-product' == $active_menu || 'service/edit' == $active_menu ) {
+            return 'service';
+        }
+        return $active_menu;
+    }
+
+    /**
+     * Filter Redirect url after new service product added
+     *
+     * @since 1.0
+     *
+     * @param string $url
+     *
+     * @param int $product_id
+     *
+     * @return $url
+     */
+    function set_redirect_url( $url, $product_id ) {
+
+        $product_type = isset( $_POST['product_type'] ) ? $_POST['product_type'] : '';
+        $tab          = isset( $_GET['tab'] ) ? $_GET['tab'] : '';
+
+        if ( 'service' == $product_type ) {
+            $url = add_query_arg( array( 'product_id' => $product_id ), dokan_get_navigation_url( 'service' ) . 'edit/' );
+            return $url;
+        }
+
+        if ( 'service' == $tab ) {
+            $url = add_query_arg( array(), dokan_get_navigation_url( 'service' ) );
+            return $url;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Save service meta data
+     *
+     * @since 1.0
+     *
+     * @global Array $wpdb
+     *
+     * @param int $post_id
+     *
+     * @return void
+     */
+    function save_service_product_data( $post_id ) {
+        global $wpdb;
+
+        $product_type         = empty( $_POST['product_type'] ) ? 'simple' : sanitize_title( stripslashes( $_POST['product_type'] ) );
+        if ( 'service' !== $product_type ) {
+            return;
+        }
+
+        $product = new WC_Product_Service( $post_id );
+
+        if ( !is_a( $product, 'WC_Product_Service' ) ) {
+            return;
+        }
+var_dump($product_type,$product);die();
+        // $product->save();
+
+        do_action( 'dokan_service_after_product_data_saved' );
+    }
+
+    public function show_service_admin_custom_js() {
+
+        if ('product' != get_post_type()) :
+            return;
+        endif;
+        ?>
+        <script type='text/javascript'>
+            jQuery(document).ready(function () {
+                //for Price tab
+                jQuery('.product_data_tabs .general_tab').addClass('show_if_service').show();
+                jQuery('#general_product_data .pricing').addClass('show_if_service').show();
+                //for Inventory tab
+                jQuery('.inventory_options').addClass('show_if_service').show();
+                jQuery('#inventory_product_data ._manage_stock_field').addClass('show_if_service').show();
+                jQuery('#inventory_product_data ._sold_individually_field').parent().addClass('show_if_service').show();
+                jQuery('#inventory_product_data ._sold_individually_field').addClass('show_if_service').show();
+            });
+        </script>
+        <?php
+
+    }
+
+    public function show_service_virtual( $options ) {
+        $options['virtual']['wrapper_class'] .= ' show_if_service';
+        return $options;
+    }
+
 } // Additional_Functions
 
 $af = Additional_Functions::init();
+
+
+////////////////////////////////////////////////////////////
+
+add_action( 'plugins_loaded', 'sk_register_service_type' );
+function sk_register_service_type () {
+    class WC_Product_Service extends WC_Product {
+        public function __construct( $product ) {
+            $this->product_type = 'service'; // name of your custom product type
+            parent::__construct( $product );
+            // add additional functions here
+        }
+    }
+}
+
