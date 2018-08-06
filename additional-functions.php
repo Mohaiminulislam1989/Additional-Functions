@@ -160,11 +160,11 @@ class Additional_Functions {
 
         add_filter( 'dokan_add_new_product_redirect', array( $this, 'set_redirect_url' ), 10, 2 );
 
-        // add_action( 'dokan_new_product_added', array( $this, 'save_service_product_data' ), 10 );
-        // add_action( 'dokan_product_updated', array( $this, 'save_service_product_data' ), 10 );
-
         add_action('admin_footer', array( $this, 'show_service_admin_custom_js' ) );
         add_filter( 'product_type_options', array( $this, 'show_service_virtual' ) );
+
+        add_action( 'dokan_settings_after_banner', array( $this, 'dokan_settings_fields_after_banner' ), 10, 2 );
+        add_action( 'dokan_store_profile_saved',  array( $this, 'dokan_store_profile_fields_saved' ), 10, 2 );
     }
 
     /**
@@ -321,36 +321,6 @@ class Additional_Functions {
         return $url;
     }
 
-    /**
-     * Save service meta data
-     *
-     * @since 1.0
-     *
-     * @global Array $wpdb
-     *
-     * @param int $post_id
-     *
-     * @return void
-     */
-    function save_service_product_data( $post_id ) {
-        global $wpdb;
-
-        $product_type         = empty( $_POST['product_type'] ) ? 'simple' : sanitize_title( stripslashes( $_POST['product_type'] ) );
-        if ( 'service' !== $product_type ) {
-            return;
-        }
-
-        $product = new WC_Product_Service( $post_id );
-
-        if ( !is_a( $product, 'WC_Product_Service' ) ) {
-            return;
-        }
-var_dump($product_type,$product);die();
-        // $product->save();
-
-        do_action( 'dokan_service_after_product_data_saved' );
-    }
-
     public function show_service_admin_custom_js() {
 
         if ('product' != get_post_type()) :
@@ -376,6 +346,135 @@ var_dump($product_type,$product);die();
     public function show_service_virtual( $options ) {
         $options['virtual']['wrapper_class'] .= ' show_if_service';
         return $options;
+    }
+
+    /**
+     * Add store settings fields
+     *
+     * @since 1.0
+     *
+     */
+    function dokan_settings_fields_after_banner( $current_user, $profile_info ) {
+
+        $b_description   = isset( $profile_info['b_description'] ) ? $profile_info['b_description'] : '' ;
+        $gallery_1       = isset( $profile_info['gallery_1'] ) ? absint( $profile_info['gallery_1'] ) : 0;
+        $gallery_2       = isset( $profile_info['gallery_2'] ) ? absint( $profile_info['gallery_2'] ) : 0;
+        $gallery_3       = isset( $profile_info['gallery_3'] ) ? absint( $profile_info['gallery_3'] ) : 0;
+        // $gallery_4       = isset( $profile_info['gallery_4'] ) ? absint( $profile_info['gallery_4'] ) : 0;
+        // $gallery_5       = isset( $profile_info['gallery_5'] ) ? absint( $profile_info['gallery_5'] ) : 0;
+        ?>
+
+
+        <div class="dokan-form-group" id="dokan_tnc_text">
+            <label class="dokan-w3 dokan-control-label" for="dokan_b_description"><?php _e( 'Business Description', 'dokan-lite' ); ?></label>
+            <div class="dokan-w8 dokan-text-left">
+                <?php
+                    $settings = array(
+                        'editor_height' => 200,
+                        'media_buttons' => false,
+                        'teeny'         => true,
+                        'quicktags'     => false
+                    );
+                    wp_editor( $b_description, 'dokan_b_description', $settings );
+                ?>
+            </div>
+        </div>
+
+
+        <div class="dokan-form-group">
+            <label class="dokan-w3 dokan-control-label" for="dokan_gallery_1"><?php _e( 'Gallery Photo 1', 'dokan-lite' ); ?></label>
+
+            <div class="dokan-w5 dokan-gravatar">
+                <div class="dokan-left gravatar-wrap<?php echo $gallery_1 ? '' : ' dokan-hide'; ?>">
+                    <?php $gallery_1_url = $gallery_1 ? wp_get_attachment_url( $gallery_1 ) : ''; ?>
+                    <input type="hidden" class="dokan-file-field" value="<?php echo $gallery_1; ?>" name="dokan_gallery_1">
+                    <img class="dokan-gravatar-img" src="<?php echo esc_url( $gallery_1_url ); ?>">
+                    <a class="dokan-close dokan-remove-gravatar-image">&times;</a>
+                </div>
+                <div class="gravatar-button-area<?php echo $gallery_1 ? ' dokan-hide' : ''; ?>">
+                    <a href="#" class="dokan-pro-gravatar-drag dokan-btn dokan-btn-default"><i class="fa fa-cloud-upload"></i> <?php _e( 'Upload Photo', 'dokan-lite' ); ?></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="dokan-form-group">
+            <label class="dokan-w3 dokan-control-label" for="dokan_gallery_2"><?php _e( 'Gallery Photo 2', 'dokan-lite' ); ?></label>
+            <div class="dokan-w5 dokan-gravatar">
+                <div class="dokan-left gravatar-wrap<?php echo $gallery_2 ? '' : ' dokan-hide'; ?>">
+                    <?php $gallery_2_url = $gallery_2 ? wp_get_attachment_url( $gallery_2 ) : ''; ?>
+                    <input type="hidden" class="dokan-file-field" value="<?php echo $gallery_2; ?>" name="dokan_gallery_2">
+                    <img class="dokan-gravatar-img" src="<?php echo esc_url( $gallery_2_url ); ?>">
+                    <a class="dokan-close dokan-remove-gravatar-image">&times;</a>
+                </div>
+                <div class="gravatar-button-area<?php echo $gallery_2 ? ' dokan-hide' : ''; ?>">
+                    <a href="#" class="dokan-pro-gravatar-drag dokan-btn dokan-btn-default"><i class="fa fa-cloud-upload"></i> <?php _e( 'Upload Photo', 'dokan-lite' ); ?></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="dokan-form-group">
+            <label class="dokan-w3 dokan-control-label" for="dokan_gallery_3"><?php _e( 'Gallery Photo 3', 'dokan-lite' ); ?></label>
+            <div class="dokan-w5 dokan-gravatar">
+                <div class="dokan-left gravatar-wrap<?php echo $gallery_3 ? '' : ' dokan-hide'; ?>">
+                    <?php $gallery_3_url = $gallery_3 ? wp_get_attachment_url( $gallery_3 ) : ''; ?>
+                    <input type="hidden" class="dokan-file-field" value="<?php echo $gallery_3; ?>" name="dokan_gallery_3">
+                    <img class="dokan-gravatar-img" src="<?php echo esc_url( $gallery_3_url ); ?>">
+                    <a class="dokan-close dokan-remove-gravatar-image">&times;</a>
+                </div>
+                <div class="gravatar-button-area<?php echo $gallery_3 ? ' dokan-hide' : ''; ?>">
+                    <a href="#" class="dokan-pro-gravatar-drag dokan-btn dokan-btn-default"><i class="fa fa-cloud-upload"></i> <?php _e( 'Upload Photo', 'dokan-lite' ); ?></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="dokan-form-group">
+            <label class="dokan-w3 dokan-control-label" for="dokan_gallery_4"><?php _e( 'Gallery Photo 4', 'dokan-lite' ); ?></label>
+            <div class="dokan-w5 dokan-gravatar">
+                <div class="dokan-left gravatar-wrap<?php echo $gallery_4 ? '' : ' dokan-hide'; ?>">
+                    <?php $gallery_4_url = $gallery_4 ? wp_get_attachment_url( $gallery_4 ) : ''; ?>
+                    <input type="hidden" class="dokan-file-field" value="<?php echo $gallery_4; ?>" name="dokan_gallery_4">
+                    <img class="dokan-gravatar-img" src="<?php echo esc_url( $gallery_4_url ); ?>">
+                    <a class="dokan-close dokan-remove-gravatar-image">&times;</a>
+                </div>
+                <div class="gravatar-button-area<?php echo $gallery_4 ? ' dokan-hide' : ''; ?>">
+                    <a href="#" class="dokan-pro-gravatar-drag dokan-btn dokan-btn-default"><i class="fa fa-cloud-upload"></i> <?php _e( 'Upload Photo', 'dokan-lite' ); ?></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="dokan-form-group">
+            <label class="dokan-w3 dokan-control-label" for="dokan_gallery_5"><?php _e( 'Gallery Photo 5', 'dokan-lite' ); ?></label>
+            <div class="dokan-w5 dokan-gravatar">
+                <div class="dokan-left gravatar-wrap<?php echo $gallery_5 ? '' : ' dokan-hide'; ?>">
+                    <?php $gallery_5_url = $gallery_5 ? wp_get_attachment_url( $gallery_5 ) : ''; ?>
+                    <input type="hidden" class="dokan-file-field" value="<?php echo $gallery_5; ?>" name="dokan_gallery_5">
+                    <img class="dokan-gravatar-img" src="<?php echo esc_url( $gallery_5_url ); ?>">
+                    <a class="dokan-close dokan-remove-gravatar-image">&times;</a>
+                </div>
+                <div class="gravatar-button-area<?php echo $gallery_5 ? ' dokan-hide' : ''; ?>">
+                    <a href="#" class="dokan-pro-gravatar-drag dokan-btn dokan-btn-default"><i class="fa fa-cloud-upload"></i> <?php _e( 'Upload Photo', 'dokan-lite' ); ?></a>
+                </div>
+            </div>
+        </div> -->
+        <?php
+    }
+
+    public function dokan_store_profile_fields_saved ( $store_id, $dokan_settings ) {
+        if ( ! $store_id ) {
+            return;
+        }
+
+        $dokan_settings = get_user_meta( $store_id, 'dokan_profile_settings', true );
+
+        $dokan_settings['b_description']   = isset( $_POST['dokan_b_description'] ) ? $_POST['dokan_b_description'] : '';
+        $dokan_settings['gallery_1']      = isset( $_POST['dokan_gallery_1'] ) ? absint( $_POST['dokan_gallery_1'] ) : null;
+        $dokan_settings['gallery_2']      = isset( $_POST['dokan_gallery_2'] ) ? absint( $_POST['dokan_gallery_2'] ) : null;
+        $dokan_settings['gallery_3']      = isset( $_POST['dokan_gallery_3'] ) ? absint( $_POST['dokan_gallery_3'] ) : null;
+        // $dokan_settings['gallery_4']      = isset( $_POST['dokan_gallery_4'] ) ? absint( $_POST['dokan_gallery_4'] ) : null;
+        // $dokan_settings['gallery_5']      = isset( $_POST['dokan_gallery_5'] ) ? absint( $_POST['dokan_gallery_5'] ) : null;
+
+        update_user_meta( $store_id, 'dokan_profile_settings', $dokan_settings );
+
     }
 
 } // Additional_Functions
