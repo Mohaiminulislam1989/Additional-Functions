@@ -160,11 +160,18 @@ class Additional_Functions {
 
         add_filter( 'dokan_add_new_product_redirect', array( $this, 'set_redirect_url' ), 10, 2 );
 
-        add_action('admin_footer', array( $this, 'show_service_admin_custom_js' ) );
+        add_action( 'admin_footer', array( $this, 'show_service_admin_custom_js' ) );
         add_filter( 'product_type_options', array( $this, 'show_service_virtual' ) );
 
         add_action( 'dokan_settings_after_banner', array( $this, 'dokan_settings_fields_after_banner' ), 10, 2 );
         add_action( 'dokan_store_profile_saved',  array( $this, 'dokan_store_profile_fields_saved' ), 10, 2 );
+
+        add_filter( 'dokan_query_var_filter', array( $this, 'load_custom_query_var' ) );
+        add_filter( 'template_include', array( $this,  'store_custom_template' ), 100 );
+
+        add_action( 'dokan_rewrite_rules_loaded', array( $this, 'dokan_custom_rewrite_rules_loaded' ), 11 );
+        add_filter( 'dokan_store_tabs',  array( $this, 'dokan_store_additional_tabs' ), 10, 2 );
+
     }
 
     /**
@@ -477,6 +484,125 @@ class Additional_Functions {
 
     }
 
+    public function dokan_custom_rewrite_rules_loaded( $custom_store_url ) {
+        add_rewrite_rule( $custom_store_url.'/([^/]+)/about?$', 'index.php?'.$custom_store_url.'=$matches[1]&about=true', 'top' );
+        add_rewrite_rule( $custom_store_url.'/([^/]+)/about/page/?([0-9]{1,})/?$', 'index.php?'.$custom_store_url.'=$matches[1]&paged=$matches[2]&about=true', 'top' );
+
+        add_rewrite_rule( $custom_store_url.'/([^/]+)/services?$', 'index.php?'.$custom_store_url.'=$matches[1]&services=true', 'top' );
+        add_rewrite_rule( $custom_store_url.'/([^/]+)/services/page/?([0-9]{1,})/?$', 'index.php?'.$custom_store_url.'=$matches[1]&paged=$matches[2]&services=true', 'top' );
+
+        add_rewrite_rule( $custom_store_url.'/([^/]+)/contact?$', 'index.php?'.$custom_store_url.'=$matches[1]&contact=true', 'top' );
+        add_rewrite_rule( $custom_store_url.'/([^/]+)/contact/page/?([0-9]{1,})/?$', 'index.php?'.$custom_store_url.'=$matches[1]&paged=$matches[2]&contact=true', 'top' );
+    }
+
+    /**
+     * Load Pro rewrite query vars
+     *
+     * @since 2.4
+     *
+     * @param  array $query_vars
+     *
+     * @return array
+     */
+    public function load_custom_query_var( $query_vars ) {
+        $query_vars[] = 'about';
+        $query_vars[] = 'services';
+        $query_vars[] = 'contact';
+
+        return $query_vars;
+    }
+
+    /**
+     * Returns the terms_and_conditions template
+     *
+     * @since 2.3
+     *
+     * @param string $template
+     *
+     * @return string
+     */
+    function store_custom_template( $template ) {
+
+        if ( ! function_exists( 'WC' ) ) {
+            return $template;
+        }
+
+        if ( get_query_var( 'about' ) ) {
+            return AF_PLUGIN_PATH . '/templates/store-about.php';
+        }
+        if ( get_query_var( 'services' ) ) {
+            return AF_PLUGIN_PATH . '/templates/store-about.php';
+        }
+        if ( get_query_var( 'contact' ) ) {
+            return AF_PLUGIN_PATH . '/templates/store-about.php';
+        }
+
+        return $template;
+
+    }
+
+    /**
+     * Get about page
+     *
+     * @since 1.0
+     *
+     * @param $store_id
+     * @param $store_info
+     *
+     * @return string
+     */
+    function dokan_get_store_about_url( $store_id ) {
+        $userstore = dokan_get_store_url( $store_id );
+        return apply_filters( 'dokan_get_store_about_url', $userstore ."about" );
+    }
+
+    /**
+     * Get services page
+     *
+     * @since 1.0
+     *
+     * @param $store_id
+     * @param $store_info
+     *
+     * @return string
+     */
+    function dokan_get_store_services_url( $store_id ) {
+        $userstore = dokan_get_store_url( $store_id );
+        return apply_filters( 'dokan_get_store_services_url', $userstore ."services" );
+    }
+
+    /**
+     * Get contact page
+     *
+     * @since 1.0
+     *
+     * @param $store_id
+     * @param $store_info
+     *
+     * @return string
+     */
+    function dokan_get_store_contact_url( $store_id ) {
+        $userstore = dokan_get_store_url( $store_id );
+        return apply_filters( 'dokan_get_store_contact_url', $userstore ."contact" );
+    }
+
+    public function dokan_store_additional_tabs( $tabs, $store_id ) {
+        $tabs['about'] = array(
+            'title' => __( 'About', 'dokan-lite' ),
+            'url'   => $this->dokan_get_store_about_url( $store_id )
+        );
+        $tabs = array_reverse($tabs);
+        $tabs['services'] = array(
+            'title' => __( 'Services', 'dokan-lite' ),
+            'url'   => $this->dokan_get_store_services_url( $store_id )
+        );
+        $tabs['contact'] = array(
+            'title' => __( 'Contact', 'dokan-lite' ),
+            'url'   => $this->dokan_get_store_contact_url( $store_id )
+        );
+        return $tabs;
+    }
+
 } // Additional_Functions
 
 $af = Additional_Functions::init();
@@ -494,4 +620,8 @@ function sk_register_service_type () {
         }
     }
 }
-
+function pre($a=array(),$b=array(),$c=array()){
+    echo '<pre>';
+    var_dump($a,$b,$c);
+    echo '</pre>';
+}
