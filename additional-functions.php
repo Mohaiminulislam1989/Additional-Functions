@@ -531,10 +531,10 @@ class Additional_Functions {
             return AF_PLUGIN_PATH . '/templates/store-about.php';
         }
         if ( get_query_var( 'services' ) ) {
-            return AF_PLUGIN_PATH . '/templates/store-about.php';
+            return AF_PLUGIN_PATH . '/templates/store-services.php';
         }
         if ( get_query_var( 'contact' ) ) {
-            return AF_PLUGIN_PATH . '/templates/store-about.php';
+            return AF_PLUGIN_PATH . '/templates/store-contact.php';
         }
 
         return $template;
@@ -620,8 +620,8 @@ function sk_register_service_type () {
         }
     }
 }
-function pre($a=array(),$b=array(),$c=array()){
-    echo '<pre>';
-    var_dump($a,$b,$c);
-    echo '</pre>';
-}
+// function pre($a=array(),$b=array(),$c=array()){
+//     echo '<pre>';
+//     var_dump($a,$b,$c);
+//     echo '</pre>';
+// }
