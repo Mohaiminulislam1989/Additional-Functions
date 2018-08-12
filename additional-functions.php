@@ -652,8 +652,8 @@ function sk_register_service_type () {
         }
     }
 }
-function pre($a=array(),$b=array(),$c=array()){
-    echo '<pre>';
-    var_dump($a,$b,$c);
-    echo '</pre>';
-}
+// function pre($a=array(),$b=array(),$c=array()){
+//     echo '<pre>';
+//     var_dump($a,$b,$c);
+//     echo '</pre>';
+// }
