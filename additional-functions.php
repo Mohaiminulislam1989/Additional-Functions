@@ -621,50 +621,17 @@ class Additional_Functions {
         $author = get_query_var( $custom_store_url );
 
         if ( !is_admin() && $query->is_main_query() && !empty( $author ) ) {
-            $seller_info  = get_user_by( 'slug', $author );
-            $store_info   = dokan_get_store_info( $seller_info->data->ID );
-            $post_per_page = isset( $store_info['store_ppp'] ) && !empty( $store_info['store_ppp'] ) ? $store_info['store_ppp'] : 12;
-            set_query_var( 'posts_per_page', $post_per_page );
-            $query->set( 'post_type', 'product' );
-            $query->set( 'author_name', $author );
-            $query->query['term_section'] = isset( $query->query['term_section'] ) ? $query->query['term_section'] : array();
 
-            if ( $query->query['term_section'] ) {
-                $query->set( 'tax_query',
+            $query->set( 'tax_query',
+                array(
                     array(
-                        array(
-                            'taxonomy' => 'product_cat',
-                            'field'    => 'term_id',
-                            'terms'    => $query->query['term']
-                        )
+                        'taxonomy' => 'product_type',
+                        'field'    => 'slug',
+                        'terms'    => array('service'),
+                        'operator' => get_query_var( 'services' ) ? 'IN' : 'NOT IN',
                     )
-                );
-            }
-            if (  get_query_var( 'services' ) ) {
-
-                $query->set( 'tax_query',
-                    array(
-                        array(
-                            'taxonomy' => 'product_type',
-                            'field'    => 'slug',
-                            'terms'    => array('service'),
-                            'operator' => 'IN',
-                        )
-                    )
-                );
-            } else {
-
-                $query->set( 'tax_query',
-                    array(
-                        array(
-                            'taxonomy' => 'product_type',
-                            'field'    => 'slug',
-                            'terms'    => array('service'),
-                            'operator' => 'NOT IN',
-                        )
-                    )
-                );
-            }
+                )
+            );
         }
     }
 
