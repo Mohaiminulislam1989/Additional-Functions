@@ -59,7 +59,7 @@ get_header( 'shop' );
             <?php dokan_get_template_part( 'store-header' ); ?>
 
             <?php do_action( 'dokan_store_profile_frame_after', $store_user->data, $store_info ); ?>
-
+<?php //global $wp_query; pre(get_query_var( 'services' ),$wp_query); ?>
             <?php if ( have_posts() ) { ?>
 
                 <div class="seller-items">

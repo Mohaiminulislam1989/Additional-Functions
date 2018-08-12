@@ -171,6 +171,7 @@ class Additional_Functions {
 
         add_action( 'dokan_rewrite_rules_loaded', array( $this, 'dokan_custom_rewrite_rules_loaded' ), 11 );
         add_filter( 'dokan_store_tabs',  array( $this, 'dokan_store_additional_tabs' ), 10, 2 );
+        add_filter( 'pre_get_posts', array( $this, 'store_service_query_filter' ), 15 );
 
     }
 
@@ -603,6 +604,70 @@ class Additional_Functions {
         return $tabs;
     }
 
+    /**
+     * Store service query filter
+     *
+     * Handles the product filtering by category in store page
+     *
+     * @param object  $query
+     *
+     * @return void
+     */
+    function store_service_query_filter( $query ) {
+        global $wp_query;
+
+        $custom_store_url = dokan_get_option( 'custom_store_url', 'dokan_general', 'store' );
+
+        $author = get_query_var( $custom_store_url );
+
+        if ( !is_admin() && $query->is_main_query() && !empty( $author ) ) {
+            $seller_info  = get_user_by( 'slug', $author );
+            $store_info   = dokan_get_store_info( $seller_info->data->ID );
+            $post_per_page = isset( $store_info['store_ppp'] ) && !empty( $store_info['store_ppp'] ) ? $store_info['store_ppp'] : 12;
+            set_query_var( 'posts_per_page', $post_per_page );
+            $query->set( 'post_type', 'product' );
+            $query->set( 'author_name', $author );
+            $query->query['term_section'] = isset( $query->query['term_section'] ) ? $query->query['term_section'] : array();
+
+            if ( $query->query['term_section'] ) {
+                $query->set( 'tax_query',
+                    array(
+                        array(
+                            'taxonomy' => 'product_cat',
+                            'field'    => 'term_id',
+                            'terms'    => $query->query['term']
+                        )
+                    )
+                );
+            }
+            if (  get_query_var( 'services' ) ) {
+
+                $query->set( 'tax_query',
+                    array(
+                        array(
+                            'taxonomy' => 'product_type',
+                            'field'    => 'slug',
+                            'terms'    => array('service'),
+                            'operator' => 'IN',
+                        )
+                    )
+                );
+            } else {
+
+                $query->set( 'tax_query',
+                    array(
+                        array(
+                            'taxonomy' => 'product_type',
+                            'field'    => 'slug',
+                            'terms'    => array('service'),
+                            'operator' => 'NOT IN',
+                        )
+                    )
+                );
+            }
+        }
+    }
+
 } // Additional_Functions
 
 $af = Additional_Functions::init();
@@ -620,8 +685,8 @@ function sk_register_service_type () {
         }
     }
 }
-// function pre($a=array(),$b=array(),$c=array()){
-//     echo '<pre>';
-//     var_dump($a,$b,$c);
-//     echo '</pre>';
-// }
+function pre($a=array(),$b=array(),$c=array()){
+    echo '<pre>';
+    var_dump($a,$b,$c);
+    echo '</pre>';
+}
