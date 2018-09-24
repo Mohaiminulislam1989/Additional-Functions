@@ -164,7 +164,7 @@ class Additional_Functions {
         add_filter( 'product_type_options', array( $this, 'show_service_virtual' ) );
 
         add_action( 'dokan_settings_after_banner', array( $this, 'dokan_settings_fields_after_banner' ), 10, 2 );
-        add_action( 'dokan_store_profile_saved',  array( $this, 'dokan_store_profile_fields_saved' ), 10, 2 );
+        add_action( 'dokan_store_profile_saved',  array( $this, 'dokan_store_profile_fields_saved' ), 15, 2 );
 
         add_filter( 'dokan_query_var_filter', array( $this, 'load_custom_query_var' ) );
         add_filter( 'template_include', array( $this,  'store_custom_template' ), 100 );
@@ -370,7 +370,7 @@ class Additional_Functions {
 
 
         <div class="dokan-form-group">
-            <label class="dokan-w3 dokan-control-label" for="dokan_b_description"><?php _e( 'Business Description', 'dokan-lite' ); ?></label>
+            <label class="dokan-w3 dokan-control-label" for="b_description"><?php _e( 'Business Description', 'dokan-lite' ); ?></label>
             <div class="dokan-w8 dokan-text-left">
                 <?php
                     $settings = array(
@@ -379,7 +379,7 @@ class Additional_Functions {
                         'teeny'         => true,
                         'quicktags'     => false
                     );
-                    wp_editor( $b_description, 'dokan_b_description', $settings );
+                    wp_editor( $b_description, 'b_description', $settings );
                 ?>
             </div>
         </div>
@@ -413,7 +413,7 @@ class Additional_Functions {
                 <div class="dokan-w3" style="min-height: 5px;"></div>
                 <div class="dokan-w5 dokan-gravatar">
                     <div class="dokan-left gravatar-wrap dokan-hide">
-                        <input type="hidden" class="dokan-file-field" value="0" name="b_gallery[]">
+                        <input type="hidden" class="dokan-file-field" value="" name="b_gallery[]">
                         <img class="dokan-gravatar-img" src="">
                         <a class="dokan-close dokan-remove-gravatar-image">&times;</a>
                     </div>
@@ -453,7 +453,7 @@ class Additional_Functions {
 
         $dokan_settings = get_user_meta( $store_id, 'dokan_profile_settings', true );
 
-        $dokan_settings['b_description']   = isset( $_POST['dokan_b_description'] ) ? $_POST['dokan_b_description'] : '';
+        $dokan_settings['b_description']   = isset( $_POST['b_description'] ) ? $_POST['b_description'] : '';
         $dokan_settings['b_gallery']      = isset( $_POST['b_gallery'] ) ? $_POST['b_gallery'] : array();
 
         update_user_meta( $store_id, 'dokan_profile_settings', $dokan_settings );

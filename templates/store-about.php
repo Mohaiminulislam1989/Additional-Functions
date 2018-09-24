@@ -56,20 +56,19 @@ get_header( 'shop' );
 
         <div id="store-toc-wrapper">
             <div id="store-toc">
-                <?php
-                if( ! empty( $vendor->get_b_description() ) ):
-                ?>
                     <h2 class="headline"><?php _e( 'About', 'dokan-lite' ); ?><?php echo ' ' . $vendor->get_store_name(); ?></h2>
-                    <div>
-                        <?php
-                        echo nl2br( $vendor->get_b_description() );
-                        // pre( $vendor->get_gallery_1() );
-
-                        ?>
+                    <div class="dokan-w8">
+                        <?php if( ! empty( $vendor->get_b_description() ) ) {
+                            echo nl2br( $vendor->get_b_description() );
+                        } ?>
                     </div>
-                <?php
-                endif;
-                ?>
+                    <div class="dokan-w5">
+                        <?php foreach ( $vendor->get_b_gallery() as $image ) {
+                            if ( $image ) { ?>
+                                <img class="dokan-gravatar-img" src="<?php echo esc_url( wp_get_attachment_url( $image ) ); ?>"><br />
+                            <?php }
+                        } ?>
+                    </div>
             </div><!-- #store-toc -->
         </div><!-- #store-toc-wrap -->
 

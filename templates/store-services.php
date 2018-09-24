@@ -80,7 +80,7 @@ get_header( 'shop' );
 
             <?php } else { ?>
 
-                <p class="dokan-info"><?php _e( 'No products were found of this vendor!', 'dokan-lite' ); ?></p>
+                <p class="dokan-info"><?php _e( 'No service products were found of this vendor!', 'dokan-lite' ); ?></p>
 
             <?php } ?>
         </div>
