@@ -133,7 +133,7 @@ class Additional_Functions {
      * @return void
      */
     public function includes() {
-
+        include ( AF_PATH . '/grid-list-toggle.php' );
     }
 
     /**
